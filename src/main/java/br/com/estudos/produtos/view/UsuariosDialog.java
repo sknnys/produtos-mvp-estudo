@@ -399,7 +399,10 @@ public class UsuariosDialog extends javax.swing.JDialog implements IUsuariosView
                     .addComponent(painelSenhas)
                     .addComponent(boxPerfil)
                     .addComponent(textFieldStatus)
-                    .addComponent(boxCliente))
+                    .addGroup(dadosLayout.createSequentialGroup()
+                        .addComponent(boxCliente)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnIncluirCliente)))
                 .addContainerGap())
         );
         dadosLayout.setVerticalGroup(
@@ -430,7 +433,8 @@ public class UsuariosDialog extends javax.swing.JDialog implements IUsuariosView
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(dadosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(labelCliente)
-                    .addComponent(boxCliente, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(boxCliente, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnIncluirCliente))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -456,8 +460,6 @@ public class UsuariosDialog extends javax.swing.JDialog implements IUsuariosView
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnMostrarSenha)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnIncluirCliente)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnFechar)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -474,7 +476,6 @@ public class UsuariosDialog extends javax.swing.JDialog implements IUsuariosView
                     .addComponent(btnSalvar)
                     .addComponent(btnCancelar)
                     .addComponent(btnMostrarSenha)
-                    .addComponent(btnIncluirCliente)
                     .addComponent(btnFechar))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
