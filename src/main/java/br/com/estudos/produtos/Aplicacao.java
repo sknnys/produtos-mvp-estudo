@@ -14,6 +14,7 @@ import br.com.estudos.produtos.presenter.IUsuariosNavegacao;
 import br.com.estudos.produtos.presenter.ILoginNavegacao;
 import br.com.estudos.produtos.presenter.LoginPresenter;
 import br.com.estudos.produtos.presenter.PrincipalPresenter;
+import br.com.estudos.produtos.presenter.PedidosPresenter;
 import br.com.estudos.produtos.presenter.ProdutoDetalhePresenter;
 import br.com.estudos.produtos.presenter.ProdutoEdicaoPresenter;
 import br.com.estudos.produtos.presenter.UsuariosPresenter;
@@ -22,6 +23,7 @@ import br.com.estudos.produtos.repositorio.IClienteRepository;
 import br.com.estudos.produtos.repositorio.IHistoricoPrecoRepository;
 import br.com.estudos.produtos.repositorio.IProdutoRepository;
 import br.com.estudos.produtos.repositorio.IUsuarioRepository;
+import br.com.estudos.produtos.repositorio.memoria.PedidoRepositoryMemoria;
 import br.com.estudos.produtos.repositorio.memoria.CategoriaRepositoryMemoria;
 import br.com.estudos.produtos.repositorio.memoria.ClienteRepositoryMemoria;
 import br.com.estudos.produtos.repositorio.memoria.HistoricoPrecoRepositoryMemoria;
@@ -33,6 +35,7 @@ import br.com.estudos.produtos.servico.AutenticacaoServico;
 import br.com.estudos.produtos.servico.CategoriaServico;
 import br.com.estudos.produtos.servico.ClienteServico;
 import br.com.estudos.produtos.servico.ProdutoServico;
+import br.com.estudos.produtos.servico.PedidoServico;
 import br.com.estudos.produtos.servico.UsuarioServico;
 import br.com.estudos.produtos.view.BuscaDialog;
 import br.com.estudos.produtos.view.CalculoDialog;
@@ -41,6 +44,8 @@ import br.com.estudos.produtos.view.ClientesDialog;
 import br.com.estudos.produtos.view.HistoricoDialog;
 import br.com.estudos.produtos.view.LoginFrame;
 import br.com.estudos.produtos.view.PrincipalFrame;
+import br.com.estudos.produtos.view.PedidosDialog;
+import br.projeto.painelpedidos.repositorio.IPedidoRepository;
 import br.com.estudos.produtos.view.ProdutoDetalheDialog;
 import br.com.estudos.produtos.view.ProdutoEdicaoDialog;
 import br.com.estudos.produtos.view.UsuariosDialog;
@@ -57,6 +62,8 @@ public class Aplicacao implements INavegacao, ILoginNavegacao {
     private final IUsuarioRepository usuarioRepository = new UsuarioRepositoryMemoria();
     private final UsuarioServico usuarioServico = new UsuarioServico(usuarioRepository);
     private final AutenticacaoServico autenticacaoServico = new AutenticacaoServico(usuarioRepository);
+    private final IPedidoRepository pedidoRepository = new PedidoRepositoryMemoria();
+    private final PedidoServico pedidoServico = new PedidoServico(pedidoRepository);
 
     public void iniciar() {
         new Seeder(categoriaServico, produtoServico, calculoServico, usuarioServico, clienteServico).executar();
@@ -109,6 +116,13 @@ public class Aplicacao implements INavegacao, ILoginNavegacao {
     public void clientes() {
         ClientesDialog view = new ClientesDialog();
         new ClientesPresenter(view, clienteServico);
+        view.exibir();
+    }
+
+    @Override
+    public void pedidos(br.com.estudos.produtos.model.Usuario usuario) {
+        PedidosDialog view = new PedidosDialog();
+        new PedidosPresenter(view, pedidoServico);
         view.exibir();
     }
 

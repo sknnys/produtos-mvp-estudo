@@ -8,6 +8,8 @@ import br.com.estudos.produtos.model.Pedido;
 import br.projeto.painelpedidos.model.PedidoAbstract;
 import br.projeto.painelpedidos.repositorio.IPedidoRepository;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PedidoServico {
     private IPedidoRepository pedidoRepository;
@@ -24,6 +26,16 @@ public class PedidoServico {
         }
 
         throw new RegraNegocioException("Pedido não encontrado.");
+    }
+
+    public List<Pedido> listarTodos() {
+        List<Pedido> pedidos = new ArrayList<>();
+
+        for (PedidoAbstract pedido : pedidoRepository.buscarTodos()) {
+            pedidos.add((Pedido) pedido);
+        }
+
+        return pedidos;
     }
 
     public void cancelar(String identificador) {

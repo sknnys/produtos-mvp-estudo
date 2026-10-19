@@ -36,6 +36,12 @@ public class PrincipalPresenter {
                 navegacao.clientes();
             }
         });
+        view.aoPedidos(new Runnable() {
+            @Override
+            public void run() {
+                navegacao.pedidos(usuario);
+            }
+        });
         view.aoUsuarios(new Runnable() {
             @Override
             public void run() {

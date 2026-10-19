@@ -74,6 +74,11 @@ public class PrincipalFrame extends javax.swing.JFrame implements IPrincipalView
     }
 
     @Override
+    public void aoPedidos(Runnable acao) {
+        Eventos.adicionarAcao(menuPedidos, acao);
+    }
+
+    @Override
     public void aoUsuarios(Runnable acao) {
         Eventos.adicionarAcao(menuUsuariosCadastro, acao);
     }
@@ -101,6 +106,7 @@ public class PrincipalFrame extends javax.swing.JFrame implements IPrincipalView
         labelUsuario = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         menuOperacao = new javax.swing.JMenu();
+        menuPedidos = new javax.swing.JMenuItem();
         menuCalcular = new javax.swing.JMenuItem();
         menuSair = new javax.swing.JMenuItem();
         menuDados = new javax.swing.JMenu();
@@ -122,6 +128,9 @@ public class PrincipalFrame extends javax.swing.JFrame implements IPrincipalView
         labelUsuario.setText("Usuário:");
 
         menuOperacao.setText("Operação");
+
+        menuPedidos.setText("Pedidos");
+        menuOperacao.add(menuPedidos);
 
         menuCalcular.setText("Calcular preço de venda");
         menuOperacao.add(menuCalcular);
@@ -208,6 +217,7 @@ public class PrincipalFrame extends javax.swing.JFrame implements IPrincipalView
     private javax.swing.JMenuItem menuClientes;
     private javax.swing.JMenuItem menuEntregadores;
     private javax.swing.JMenuItem menuIncluir;
+    private javax.swing.JMenuItem menuPedidos;
     private javax.swing.JMenu menuOperacao;
     private javax.swing.JMenu menuProdutos;
     private javax.swing.JMenuItem menuSair;

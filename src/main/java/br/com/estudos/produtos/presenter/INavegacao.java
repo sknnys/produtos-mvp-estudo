@@ -11,6 +11,7 @@ public interface INavegacao {
     void buscarProdutos();
     void categorias();
     void clientes();
+    void pedidos(Usuario usuario);
     void usuarios(Usuario usuario);
     void calcular();
     void visualizarProduto(int id);
