@@ -26,12 +26,7 @@ public class ClientesPresenter {
         this.view = view;
         this.service = service;
 
-        view.aoNovo(new Runnable() {
-            @Override
-            public void run() {
-                novo();
-            }
-        });
+        view.aoNovo(this::novo);
         view.aoEditar(new Runnable() {
             @Override
             public void run() {
