@@ -6,6 +6,7 @@ package br.com.estudos.produtos.servico;
 
 import br.com.estudos.produtos.model.Pedido;
 import br.com.estudos.produtos.model.Cliente;
+import br.com.estudos.produtos.model.Produto;
 import br.projeto.painelpedidos.model.PedidoAbstract;
 import br.projeto.painelpedidos.repositorio.IPedidoRepository;
 import java.time.LocalDateTime;
@@ -67,6 +68,30 @@ public class PedidoServico {
 
         Pedido pedido = consultar(identificador);
         pedido.atualizarEndereco(endereco.trim());
+        pedidoRepository.salvar(pedido);
+    }
+
+    public void adicionarProduto(String identificador, Produto produto) {
+        if (produto == null) {
+            throw new RegraNegocioException("Selecione um produto.");
+        }
+
+        if (produto.getPrecoVendaAtual() == null) {
+            throw new RegraNegocioException("Calcule o preço de venda do produto antes de adicionar.");
+        }
+
+        Pedido pedido = consultar(identificador);
+        pedido.adicionarItem(produto, 1);
+        pedidoRepository.salvar(pedido);
+    }
+
+    public void alterarQuantidade(String identificador, int produtoId, int quantidade) {
+        if (quantidade < 0) {
+            throw new RegraNegocioException("A quantidade não pode ser negativa.");
+        }
+
+        Pedido pedido = consultar(identificador);
+        pedido.alterarQuantidadeItem(produtoId, quantidade);
         pedidoRepository.salvar(pedido);
     }
 

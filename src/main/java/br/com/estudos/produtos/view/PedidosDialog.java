@@ -54,6 +54,22 @@ public class PedidosDialog extends javax.swing.JDialog implements IPedidosView {
     }
 
     @Override
+    public String getProduto() {
+        Object produto = boxProduto.getSelectedItem();
+        return produto == null ? "" : produto.toString();
+    }
+
+    @Override
+    public String getQuantidade() {
+        return textFieldQuantidade.getText();
+    }
+
+    @Override
+    public int getLinhaItem() {
+        return tableItens.getSelectedRow();
+    }
+
+    @Override
     public void mostrarClientes(String[] clientes) {
         boxCliente.removeAllItems();
         boxCliente.addItem("");
@@ -64,8 +80,23 @@ public class PedidosDialog extends javax.swing.JDialog implements IPedidosView {
     }
 
     @Override
+    public void mostrarProdutos(String[] produtos) {
+        boxProduto.removeAllItems();
+        boxProduto.addItem("");
+
+        for (String produto : produtos) {
+            boxProduto.addItem(produto);
+        }
+    }
+
+    @Override
     public void mostrarPedidos(String[][] linhas) {
         Tabelas.preencher(tablePedidos, linhas);
+    }
+
+    @Override
+    public void mostrarItens(String[][] linhas) {
+        Tabelas.preencher(tableItens, linhas);
     }
 
     @Override
@@ -88,6 +119,15 @@ public class PedidosDialog extends javax.swing.JDialog implements IPedidosView {
     }
 
     @Override
+    public void selecionarLinhaItem(int indice) {
+        if (indice < 0) {
+            tableItens.clearSelection();
+        } else {
+            tableItens.setRowSelectionInterval(indice, indice);
+        }
+    }
+
+    @Override
     public void selecionarCliente(String cliente) {
         boxCliente.setSelectedItem(cliente);
     }
@@ -103,6 +143,11 @@ public class PedidosDialog extends javax.swing.JDialog implements IPedidosView {
     }
 
     @Override
+    public void mostrarQuantidade(String quantidade) {
+        textFieldQuantidade.setText(quantidade);
+    }
+
+    @Override
     public void aoNovo(Runnable acao) {
         Eventos.adicionarAcao(btnNovo, acao);
     }
@@ -115,6 +160,21 @@ public class PedidosDialog extends javax.swing.JDialog implements IPedidosView {
     @Override
     public void aoSelecionarCliente(Runnable acao) {
         Eventos.adicionarSelecao(boxCliente, acao);
+    }
+
+    @Override
+    public void aoAdicionarProduto(Runnable acao) {
+        Eventos.adicionarAcao(btnAdicionarProduto, acao);
+    }
+
+    @Override
+    public void aoAlterarQuantidade(Runnable acao) {
+        Eventos.adicionarAcao(btnAlterarQuantidade, acao);
+    }
+
+    @Override
+    public void aoSelecionarItem(Runnable acao) {
+        Eventos.adicionarSelecao(tableItens, acao);
     }
 
     @Override
@@ -147,6 +207,15 @@ public class PedidosDialog extends javax.swing.JDialog implements IPedidosView {
         textFieldValor = new javax.swing.JTextField();
         labelEndereco = new javax.swing.JLabel();
         textFieldEndereco = new javax.swing.JTextField();
+        itens = new javax.swing.JPanel();
+        labelProduto = new javax.swing.JLabel();
+        boxProduto = new javax.swing.JComboBox<>();
+        btnAdicionarProduto = new javax.swing.JButton();
+        labelQuantidade = new javax.swing.JLabel();
+        textFieldQuantidade = new javax.swing.JTextField();
+        btnAlterarQuantidade = new javax.swing.JButton();
+        jScrollPaneItens = new javax.swing.JScrollPane();
+        tableItens = new javax.swing.JTable();
         listagem = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tablePedidos = new javax.swing.JTable();
@@ -219,6 +288,71 @@ public class PedidosDialog extends javax.swing.JDialog implements IPedidosView {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
+        itens.setBorder(javax.swing.BorderFactory.createTitledBorder("Itens do pedido"));
+
+        labelProduto.setText("Produto:");
+        boxProduto.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "" }));
+        btnAdicionarProduto.setText("Adicionar");
+        labelQuantidade.setText("Quantidade:");
+        btnAlterarQuantidade.setText("Alterar quantidade");
+
+        tableItens.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+            },
+            new String [] {
+                "Produto", "Preço unitário", "Quantidade", "Subtotal"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit[columnIndex];
+            }
+        });
+        tableItens.setRowHeight(24);
+        jScrollPaneItens.setViewportView(tableItens);
+
+        javax.swing.GroupLayout itensLayout = new javax.swing.GroupLayout(itens);
+        itens.setLayout(itensLayout);
+        itensLayout.setHorizontalGroup(
+            itensLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(itensLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(labelProduto)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(boxProduto, 0, 270, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnAdicionarProduto)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(labelQuantidade)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(textFieldQuantidade, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnAlterarQuantidade)
+                .addContainerGap())
+            .addGroup(itensLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPaneItens)
+                .addContainerGap())
+        );
+        itensLayout.setVerticalGroup(
+            itensLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(itensLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(itensLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(labelProduto)
+                    .addComponent(boxProduto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnAdicionarProduto)
+                    .addComponent(labelQuantidade)
+                    .addComponent(textFieldQuantidade, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnAlterarQuantidade))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPaneItens, javax.swing.GroupLayout.DEFAULT_SIZE, 150, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
         listagem.setBorder(javax.swing.BorderFactory.createTitledBorder("Pedidos cadastrados"));
 
         tablePedidos.setModel(new javax.swing.table.DefaultTableModel(
@@ -268,6 +402,7 @@ public class PedidosDialog extends javax.swing.JDialog implements IPedidosView {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(dados, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(itens, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(listagem, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
@@ -284,6 +419,8 @@ public class PedidosDialog extends javax.swing.JDialog implements IPedidosView {
                 .addContainerGap()
                 .addComponent(dados, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(itens, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(listagem, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -299,21 +436,30 @@ public class PedidosDialog extends javax.swing.JDialog implements IPedidosView {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnFechar;
+    private javax.swing.JButton btnAdicionarProduto;
+    private javax.swing.JButton btnAlterarQuantidade;
     private javax.swing.JButton btnNovo;
     private javax.swing.JButton btnSalvarEndereco;
     private javax.swing.JComboBox<String> boxCliente;
+    private javax.swing.JComboBox<String> boxProduto;
     private javax.swing.JPanel dados;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPaneItens;
     private javax.swing.JLabel labelCliente;
     private javax.swing.JLabel labelEndereco;
+    private javax.swing.JLabel labelProduto;
+    private javax.swing.JLabel labelQuantidade;
     private javax.swing.JLabel labelNumero;
     private javax.swing.JLabel labelSituacao;
     private javax.swing.JLabel labelValor;
     private javax.swing.JPanel listagem;
+    private javax.swing.JPanel itens;
+    private javax.swing.JTable tableItens;
     private javax.swing.JTable tablePedidos;
     private javax.swing.JTextField textFieldEndereco;
     private javax.swing.JTextField textFieldNumero;
     private javax.swing.JTextField textFieldSituacao;
     private javax.swing.JTextField textFieldValor;
+    private javax.swing.JTextField textFieldQuantidade;
     // End of variables declaration//GEN-END:variables
 }
