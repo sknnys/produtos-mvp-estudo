@@ -52,6 +52,11 @@ public class Pedido extends PedidoAbstract {
         return enderecoPedido;
     }
 
+    @Override
+    public String getEnderecoEntrega() {
+        return enderecoPedido;
+    }
+
     public List<ItemPedido> getItens() {
         return new ArrayList<>(itens);
     }
@@ -83,6 +88,10 @@ public class Pedido extends PedidoAbstract {
                 return;
             }
         }
+    }
+
+    public void atualizarEndereco(String enderecoPedido) {
+        this.enderecoPedido = enderecoPedido;
     }
 
     @Override

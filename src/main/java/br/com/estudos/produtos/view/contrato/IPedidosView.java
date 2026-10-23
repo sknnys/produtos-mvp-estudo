@@ -5,11 +5,20 @@
 package br.com.estudos.produtos.view.contrato;
 
 public interface IPedidosView extends IJanelaView {
+    String getCliente();
+    String getEndereco();
     int getLinha();
+    void mostrarClientes(String[] clientes);
     void mostrarPedidos(String[][] linhas);
     void mostrarDados(String numero, String cliente, String situacao,
             String valor, String endereco);
     void selecionarLinha(int indice);
+    void selecionarCliente(String cliente);
+    void definirClienteFixo(boolean fixo);
+    void mostrarEndereco(String endereco);
+    void aoNovo(Runnable acao);
+    void aoSalvarEndereco(Runnable acao);
+    void aoSelecionarCliente(Runnable acao);
     void aoSelecionar(Runnable acao);
     void aoFechar(Runnable acao);
 }

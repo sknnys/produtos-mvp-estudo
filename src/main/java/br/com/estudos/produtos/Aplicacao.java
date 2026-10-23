@@ -122,7 +122,7 @@ public class Aplicacao implements INavegacao, ILoginNavegacao {
     @Override
     public void pedidos(br.com.estudos.produtos.model.Usuario usuario) {
         PedidosDialog view = new PedidosDialog();
-        new PedidosPresenter(view, pedidoServico);
+        new PedidosPresenter(view, pedidoServico, clienteServico, usuario);
         view.exibir();
     }
 

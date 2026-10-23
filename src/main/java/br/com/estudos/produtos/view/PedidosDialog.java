@@ -43,6 +43,27 @@ public class PedidosDialog extends javax.swing.JDialog implements IPedidosView {
     }
 
     @Override
+    public String getCliente() {
+        Object cliente = boxCliente.getSelectedItem();
+        return cliente == null ? "" : cliente.toString();
+    }
+
+    @Override
+    public String getEndereco() {
+        return textFieldEndereco.getText();
+    }
+
+    @Override
+    public void mostrarClientes(String[] clientes) {
+        boxCliente.removeAllItems();
+        boxCliente.addItem("");
+
+        for (String cliente : clientes) {
+            boxCliente.addItem(cliente);
+        }
+    }
+
+    @Override
     public void mostrarPedidos(String[][] linhas) {
         Tabelas.preencher(tablePedidos, linhas);
     }
@@ -51,7 +72,7 @@ public class PedidosDialog extends javax.swing.JDialog implements IPedidosView {
     public void mostrarDados(String numero, String cliente, String situacao,
             String valor, String endereco) {
         textFieldNumero.setText(numero);
-        textFieldCliente.setText(cliente);
+        boxCliente.setSelectedItem(cliente);
         textFieldSituacao.setText(situacao);
         textFieldValor.setText(valor);
         textFieldEndereco.setText(endereco);
@@ -64,6 +85,36 @@ public class PedidosDialog extends javax.swing.JDialog implements IPedidosView {
         } else {
             tablePedidos.setRowSelectionInterval(indice, indice);
         }
+    }
+
+    @Override
+    public void selecionarCliente(String cliente) {
+        boxCliente.setSelectedItem(cliente);
+    }
+
+    @Override
+    public void definirClienteFixo(boolean fixo) {
+        boxCliente.setEnabled(!fixo);
+    }
+
+    @Override
+    public void mostrarEndereco(String endereco) {
+        textFieldEndereco.setText(endereco);
+    }
+
+    @Override
+    public void aoNovo(Runnable acao) {
+        Eventos.adicionarAcao(btnNovo, acao);
+    }
+
+    @Override
+    public void aoSalvarEndereco(Runnable acao) {
+        Eventos.adicionarAcao(btnSalvarEndereco, acao);
+    }
+
+    @Override
+    public void aoSelecionarCliente(Runnable acao) {
+        Eventos.adicionarSelecao(boxCliente, acao);
     }
 
     @Override
@@ -89,7 +140,7 @@ public class PedidosDialog extends javax.swing.JDialog implements IPedidosView {
         labelNumero = new javax.swing.JLabel();
         textFieldNumero = new javax.swing.JTextField();
         labelCliente = new javax.swing.JLabel();
-        textFieldCliente = new javax.swing.JTextField();
+        boxCliente = new javax.swing.JComboBox<>();
         labelSituacao = new javax.swing.JLabel();
         textFieldSituacao = new javax.swing.JTextField();
         labelValor = new javax.swing.JLabel();
@@ -99,6 +150,8 @@ public class PedidosDialog extends javax.swing.JDialog implements IPedidosView {
         listagem = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tablePedidos = new javax.swing.JTable();
+        btnNovo = new javax.swing.JButton();
+        btnSalvarEndereco = new javax.swing.JButton();
         btnFechar = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
@@ -115,10 +168,9 @@ public class PedidosDialog extends javax.swing.JDialog implements IPedidosView {
         labelEndereco.setText("Endereço de entrega:");
 
         textFieldNumero.setEditable(false);
-        textFieldCliente.setEditable(false);
         textFieldSituacao.setEditable(false);
         textFieldValor.setEditable(false);
-        textFieldEndereco.setEditable(false);
+        boxCliente.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "" }));
 
         javax.swing.GroupLayout dadosLayout = new javax.swing.GroupLayout(dados);
         dados.setLayout(dadosLayout);
@@ -135,7 +187,7 @@ public class PedidosDialog extends javax.swing.JDialog implements IPedidosView {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(dadosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(textFieldNumero)
-                    .addComponent(textFieldCliente)
+                    .addComponent(boxCliente, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(textFieldSituacao)
                     .addComponent(textFieldValor)
                     .addComponent(textFieldEndereco))
@@ -151,7 +203,7 @@ public class PedidosDialog extends javax.swing.JDialog implements IPedidosView {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(dadosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(labelCliente)
-                    .addComponent(textFieldCliente, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(boxCliente, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(dadosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(labelSituacao)
@@ -204,6 +256,8 @@ public class PedidosDialog extends javax.swing.JDialog implements IPedidosView {
                 .addContainerGap())
         );
 
+        btnNovo.setText("Criar pedido");
+        btnSalvarEndereco.setText("Salvar endereço");
         btnFechar.setText("Fechar");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -217,6 +271,10 @@ public class PedidosDialog extends javax.swing.JDialog implements IPedidosView {
                     .addComponent(listagem, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(btnNovo)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnSalvarEndereco)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnFechar)))
                 .addContainerGap())
         );
@@ -228,7 +286,10 @@ public class PedidosDialog extends javax.swing.JDialog implements IPedidosView {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(listagem, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnFechar)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnNovo)
+                    .addComponent(btnSalvarEndereco)
+                    .addComponent(btnFechar))
                 .addContainerGap())
         );
 
@@ -238,6 +299,9 @@ public class PedidosDialog extends javax.swing.JDialog implements IPedidosView {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnFechar;
+    private javax.swing.JButton btnNovo;
+    private javax.swing.JButton btnSalvarEndereco;
+    private javax.swing.JComboBox<String> boxCliente;
     private javax.swing.JPanel dados;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel labelCliente;
@@ -247,7 +311,6 @@ public class PedidosDialog extends javax.swing.JDialog implements IPedidosView {
     private javax.swing.JLabel labelValor;
     private javax.swing.JPanel listagem;
     private javax.swing.JTable tablePedidos;
-    private javax.swing.JTextField textFieldCliente;
     private javax.swing.JTextField textFieldEndereco;
     private javax.swing.JTextField textFieldNumero;
     private javax.swing.JTextField textFieldSituacao;
