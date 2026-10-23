@@ -9,6 +9,11 @@
             <Property name="text" type="java.lang.String" value="Opera&#xe7;&#xe3;o"/>
           </Properties>
           <SubComponents>
+            <MenuItem class="javax.swing.JMenuItem" name="menuPedidos">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Pedidos"/>
+              </Properties>
+            </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="menuCalcular">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Calcular pre&#xe7;o de venda"/>

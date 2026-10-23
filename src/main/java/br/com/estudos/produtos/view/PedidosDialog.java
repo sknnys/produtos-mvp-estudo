@@ -226,7 +226,7 @@ public class PedidosDialog extends javax.swing.JDialog implements IPedidosView {
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Pedidos");
         setModal(true);
-        setPreferredSize(new java.awt.Dimension(860, 580));
+        setPreferredSize(new java.awt.Dimension(860, 700));
 
         dados.setBorder(javax.swing.BorderFactory.createTitledBorder("Dados do pedido"));
 
