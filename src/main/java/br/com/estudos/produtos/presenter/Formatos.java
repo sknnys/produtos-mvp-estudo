@@ -7,6 +7,7 @@ package br.com.estudos.produtos.presenter;
 import br.com.estudos.produtos.model.Produto;
 import br.com.estudos.produtos.servico.RegraNegocioException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
@@ -43,6 +44,10 @@ public class Formatos {
 
     public static String data(LocalDate data) {
         return data.format(DATA);
+    }
+
+    public static String dataHora(LocalDateTime dataHora) {
+        return dataHora.format(DateTimeFormatter.ofPattern("dd/MM/uuuu HH:mm"));
     }
 
     public static LocalDate lerData(String texto) {

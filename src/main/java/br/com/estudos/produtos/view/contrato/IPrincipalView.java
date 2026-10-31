@@ -11,6 +11,8 @@ public interface IPrincipalView extends IJanelaView {
     void aoBuscar(Runnable acao);
     void aoCategorias(Runnable acao);
     void aoClientes(Runnable acao);
+    void aoPedidos(Runnable acao);
+    void aoPainelPedidos(Runnable acao);
     void aoUsuarios(Runnable acao);
     void aoCalcular(Runnable acao);
     void aoSair(Runnable acao);
