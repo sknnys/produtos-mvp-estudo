@@ -1,5 +1,7 @@
 /target/
 /nbproject/private/
+.idea/
+/tmp/
 *.class
 *.log
 

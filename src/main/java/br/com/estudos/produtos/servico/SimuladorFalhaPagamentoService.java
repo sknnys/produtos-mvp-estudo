@@ -18,25 +18,23 @@ public class SimuladorFalhaPagamentoService {
         return instancia;
     }
 
-    public String simularFalha() {
+    public void simularFalha() {
         int percentual = (int) (Math.random() * 100);
 
         if (percentual < 10) {
-            return "Servidor indisponível";
+            throw new RuntimeException("Servidor indisponível");
         }
 
         if (percentual < 20) {
-            return "Falha ao processar pagamento";
+            throw new RuntimeException("Falha ao processar pagamento");
         }
 
         if (percentual < 25) {
-            return "Tempo limite excedido";
+            throw new RuntimeException("Tempo limite excedido");
         }
 
         if (percentual < 30) {
-            return "Falha de comunicação com o serviço de pagamento";
+            throw new RuntimeException("Falha de comunicação com o serviço de pagamento");
         }
-
-        return null;
     }
 }

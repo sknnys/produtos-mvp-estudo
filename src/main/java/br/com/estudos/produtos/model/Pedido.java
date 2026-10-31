@@ -10,11 +10,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Pedido extends PedidoAbstract {
+    public static final double TAXA_ENTREGA_PADRAO = 10.0;
+    public static final double LIMITE_DESCONTO_TAXA = 10.0;
+
     private Cliente cliente;
     private String enderecoPedido;
     private List<ItemPedido> itens = new ArrayList<>();
     private double valorTotalPedido;
     private double creditoGeradoPedido;
+    private String codigoCupom;
+    private Double percentualCupom;
+    private double valorDescontoCupom;
+    private double totalPagar;
+    private boolean valoresCalculados;
+    private List<DescontoTaxaEntrega> descontosTaxa = new ArrayList<>();
+    private LocalDateTime dataHoraPagamento;
 
     public Pedido(String identificador, LocalDateTime dataHora,
             String nomeCliente, String enderecoEntrega, double valorTotal) {
@@ -66,12 +76,14 @@ public class Pedido extends PedidoAbstract {
             if (item.getProduto().getId() == produto.getId()) {
                 item.adicionarQuantidade(quantidade);
                 atualizarValorTotal();
+                invalidarCalculo();
                 return;
             }
         }
 
         itens.add(new ItemPedido(produto, quantidade));
         atualizarValorTotal();
+        invalidarCalculo();
     }
 
     public void alterarQuantidadeItem(int produtoId, int quantidade) {
@@ -85,6 +97,7 @@ public class Pedido extends PedidoAbstract {
                     item.alterarQuantidade(quantidade);
                 }
                 atualizarValorTotal();
+                invalidarCalculo();
                 return;
             }
         }
@@ -92,6 +105,7 @@ public class Pedido extends PedidoAbstract {
 
     public void atualizarEndereco(String enderecoPedido) {
         this.enderecoPedido = enderecoPedido;
+        invalidarCalculo();
     }
 
     @Override
@@ -99,10 +113,118 @@ public class Pedido extends PedidoAbstract {
         return valorTotalPedido;
     }
 
+    public boolean temCupom() {
+        return codigoCupom != null;
+    }
+
+    public String getCodigoCupom() {
+        return codigoCupom;
+    }
+
+    public Double getPercentualCupom() {
+        return percentualCupom;
+    }
+
+    public double getValorDescontoCupom() {
+        return valorDescontoCupom;
+    }
+
+    public double getTotalPagar() {
+        return totalPagar;
+    }
+
+    public boolean isValoresCalculados() {
+        return valoresCalculados;
+    }
+
+    public LocalDateTime getDataHoraPagamento() {
+        return dataHoraPagamento;
+    }
+
+    @Override
+    public void registrarPagamento(String formaPagamento, LocalDateTime quando) {
+        super.registrarPagamento(formaPagamento, quando);
+        dataHoraPagamento = quando;
+    }
+
+    public void aplicarCupom(String codigo, Double percentual) {
+        codigoCupom = codigo;
+        percentualCupom = percentual;
+        limparDescontosTaxa();
+        invalidarCalculo();
+    }
+
+    public void calcularSemCupom() {
+        valorDescontoCupom = 0.0;
+        totalPagar = valorTotalPedido + getTaxaEntregaFinal();
+        valoresCalculados = true;
+    }
+
+    public void calcularComCupom() {
+        double valorComTaxa = valorTotalPedido + TAXA_ENTREGA_PADRAO;
+
+        valorDescontoCupom = valorComTaxa * percentualCupom / 100;
+        totalPagar = valorComTaxa - valorDescontoCupom;
+        valoresCalculados = true;
+    }
+
+    public void removerCupom() {
+        codigoCupom = null;
+        percentualCupom = null;
+        valorDescontoCupom = 0.0;
+        invalidarCalculo();
+    }
+
+    public double getTaxaEntrega() {
+        return TAXA_ENTREGA_PADRAO;
+    }
+
+    public List<DescontoTaxaEntrega> getDescontosTaxa() {
+        return new ArrayList<>(descontosTaxa);
+    }
+
+    public double getDescontoTaxaTotal() {
+        double total = 0.0;
+
+        for (DescontoTaxaEntrega desconto : descontosTaxa) {
+            total = total + desconto.getValor();
+        }
+
+        return total;
+    }
+
+    public double getTaxaEntregaFinal() {
+        return TAXA_ENTREGA_PADRAO - getDescontoTaxaTotal();
+    }
+
+    public boolean atingiuLimiteDescontoTaxa() {
+        return getDescontoTaxaTotal() >= LIMITE_DESCONTO_TAXA;
+    }
+
+    public void aplicarDescontoTaxa(DescontoTaxaEntrega desconto) {
+        if (desconto == null || desconto.getValor() <= 0
+                || temCupom() || atingiuLimiteDescontoTaxa()) {
+            return;
+        }
+
+        double restante = LIMITE_DESCONTO_TAXA - getDescontoTaxaTotal();
+
+        if (desconto.getValor() <= restante) {
+            descontosTaxa.add(desconto);
+        } else {
+            descontosTaxa.add(new DescontoTaxaEntrega(
+                    desconto.getDescricao() + " (parcial)", restante, true));
+        }
+    }
+
+    public void limparDescontosTaxa() {
+        descontosTaxa.clear();
+    }
+
     @Override
     public void confirmarCancelamento() {
         if (isPagamentoRegistrado()) {
-            creditoGeradoPedido = valorTotalPedido;
+            creditoGeradoPedido = totalPagar;
         } else {
             creditoGeradoPedido = 0.0;
         }
@@ -122,4 +244,12 @@ public class Pedido extends PedidoAbstract {
 
         valorTotalPedido = total;
     }
+
+    private void invalidarCalculo() {
+        valoresCalculados = false;
+        valorDescontoCupom = 0.0;
+        totalPagar = 0.0;
+        limparDescontosTaxa();
+    }
+
 }

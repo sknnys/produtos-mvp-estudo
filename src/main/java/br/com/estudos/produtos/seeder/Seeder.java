@@ -6,10 +6,12 @@ package br.com.estudos.produtos.seeder;
 
 import br.com.estudos.produtos.model.Categoria;
 import br.com.estudos.produtos.servico.ClienteServico;
+import br.com.estudos.produtos.servico.CupomServico;
 import br.com.estudos.produtos.servico.CalculoPrecoServico;
 import br.com.estudos.produtos.servico.CategoriaServico;
 import br.com.estudos.produtos.servico.ProdutoServico;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import br.com.estudos.produtos.servico.UsuarioServico;
 
 public class Seeder {
@@ -18,20 +20,23 @@ public class Seeder {
     private final CalculoPrecoServico calculo;
     private final UsuarioServico usuarios;
     private final ClienteServico clientes;
+    private final CupomServico cupons;
 
     public Seeder(CategoriaServico categorias, ProdutoServico produtos, CalculoPrecoServico calculo,
-            UsuarioServico usuarios, ClienteServico clientes) {
+            UsuarioServico usuarios, ClienteServico clientes, CupomServico cupons) {
         this.categorias = categorias;
         this.produtos = produtos;
         this.calculo = calculo;
         this.usuarios = usuarios;
         this.clientes = clientes;
+        this.cupons = cupons;
     }
 
     public void executar() {
         usuarios.criarAdministradorInicial();
         clientes.salvar(null, "Ana Silva", "Rua das Flores, 10", "Centro", "Vitória", "ES");
         clientes.salvar(null, "João Souza", "Avenida Brasil, 200", "Praia do Canto", "Vitória", "ES");
+        criarCupons();
         Categoria educacao = categorias.salvar(null, "Educação", 25.0);
         Categoria papelaria = categorias.salvar(null, "Papelaria", 30.0);
         Categoria alimentacao = categorias.salvar(null, "Alimentação", 22.0);
@@ -65,6 +70,20 @@ public class Seeder {
 
     private void produto(String nome, Double custo, Categoria categoria) {
         produtos.salvar(null, nome, custo, categoria.getId());
+    }
+
+    private void criarCupons() {
+        LocalDateTime inicio = LocalDateTime.of(2026, 10, 1, 0, 0);
+        LocalDateTime fim = LocalDateTime.of(2026, 11, 30, 23, 59);
+
+        cupons.salvar("DESC10", 10.0, inicio, fim);
+        cupons.salvar("DESC20", 20.0, inicio, fim);
+        cupons.salvar("DESC30", 30.0, inicio, fim);
+        cupons.salvar("DIAPAI12", 12.0, inicio, fim);
+        cupons.salvar("DIAMAE12", 12.0, inicio, fim);
+        cupons.salvar("NATAL10", 10.0, inicio, fim);
+        cupons.salvar("FESTA15", 15.0, inicio, fim);
+        cupons.salvar("BLACK50", 50.0, inicio, fim);
     }
 }
 

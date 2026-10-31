@@ -7,6 +7,7 @@ package br.com.estudos.produtos.presenter;
 import br.com.estudos.produtos.model.Pedido;
 import br.com.estudos.produtos.model.Cliente;
 import br.com.estudos.produtos.model.ItemPedido;
+import br.com.estudos.produtos.model.DescontoTaxaEntrega;
 import br.com.estudos.produtos.model.Produto;
 import br.com.estudos.produtos.model.Usuario;
 import br.com.estudos.produtos.servico.ClienteServico;
@@ -23,20 +24,32 @@ public class PedidosPresenter {
     private ClienteServico clienteServico;
     private ProdutoServico produtoServico;
     private Usuario usuario;
+    private INavegacao navegacao;
     private List<Pedido> pedidos = new ArrayList<>();
     private List<Cliente> clientes = new ArrayList<>();
     private List<Produto> produtos = new ArrayList<>();
     private String identificadorSelecionado;
     private boolean mostrandoPedido;
+    private boolean somenteLeitura;
 
     public PedidosPresenter(IPedidosView view, PedidoServico service,
             ClienteServico clienteServico, ProdutoServico produtoServico,
-            Usuario usuario) {
+            Usuario usuario, INavegacao navegacao) {
+        this(view, service, clienteServico, produtoServico, usuario, navegacao, null, false);
+    }
+
+    public PedidosPresenter(IPedidosView view, PedidoServico service,
+            ClienteServico clienteServico, ProdutoServico produtoServico,
+            Usuario usuario, INavegacao navegacao, String identificadorPedido,
+            boolean somenteLeitura) {
         this.view = view;
         this.service = service;
         this.clienteServico = clienteServico;
         this.produtoServico = produtoServico;
         this.usuario = usuario;
+        this.navegacao = navegacao;
+        this.identificadorSelecionado = identificadorPedido;
+        this.somenteLeitura = somenteLeitura;
 
         view.aoNovo(new Runnable() {
             @Override
@@ -80,6 +93,36 @@ public class PedidosPresenter {
                 selecionar();
             }
         });
+        view.aoAplicarCupom(new Runnable() {
+            @Override
+            public void run() {
+                aplicarCupom();
+            }
+        });
+        view.aoRemoverCupom(new Runnable() {
+            @Override
+            public void run() {
+                removerCupom();
+            }
+        });
+        view.aoCalcularValor(new Runnable() {
+            @Override
+            public void run() {
+                calcularValor();
+            }
+        });
+        view.aoDetalhes(new Runnable() {
+            @Override
+            public void run() {
+                mostrarDetalhes();
+            }
+        });
+        view.aoPagar(new Runnable() {
+            @Override
+            public void run() {
+                pagar();
+            }
+        });
         view.aoFechar(new Runnable() {
             @Override
             public void run() {
@@ -88,6 +131,7 @@ public class PedidosPresenter {
         });
         carregarClientes();
         carregarProdutos();
+        view.definirSomenteLeitura(somenteLeitura);
         atualizar();
     }
 
@@ -147,9 +191,11 @@ public class PedidosPresenter {
         int indice = view.getLinha();
 
         if (indice < 0 || indice >= pedidos.size()) {
-            view.mostrarDados("", "", "", "", "");
+            view.mostrarDados("", "", "", "", "", "");
             view.mostrarItens(new String[0][4]);
             view.mostrarQuantidade("");
+            view.mostrarResumo("", "", "", "", "", "");
+            view.definirDetalhesHabilitado(false);
             return;
         }
 
@@ -158,6 +204,7 @@ public class PedidosPresenter {
         mostrandoPedido = true;
         view.mostrarDados(
                 pedido.getIdentificador(),
+                Formatos.dataHora(pedido.getDataHora()),
                 pedido.getNomeCliente(),
                 pedido.getSituacao(),
                 Formatos.numero(pedido.getValorTotal()),
@@ -165,6 +212,8 @@ public class PedidosPresenter {
         );
         mostrandoPedido = false;
         mostrarItens(pedido);
+        mostrarResumo(pedido);
+        view.definirSomenteLeitura(somenteLeitura);
     }
 
     private void novo() {
@@ -222,6 +271,75 @@ public class PedidosPresenter {
             atualizar();
         } catch (NumberFormatException e) {
             view.exibirMensagem("Informe uma quantidade inteira.");
+        } catch (RegraNegocioException e) {
+            view.exibirMensagem(e.getMessage());
+        }
+    }
+
+    private void aplicarCupom() {
+        if (identificadorSelecionado == null) {
+            view.exibirMensagem("Crie ou selecione um pedido.");
+            return;
+        }
+
+        try {
+            service.aplicarCupom(identificadorSelecionado, view.getCodigoCupom());
+            atualizar();
+        } catch (RegraNegocioException e) {
+            view.exibirMensagem(e.getMessage());
+        }
+    }
+
+    private void removerCupom() {
+        if (identificadorSelecionado == null) {
+            return;
+        }
+
+        service.removerCupom(identificadorSelecionado);
+        atualizar();
+    }
+
+    private void calcularValor() {
+        if (identificadorSelecionado == null) {
+            view.exibirMensagem("Crie ou selecione um pedido.");
+            return;
+        }
+
+        try {
+            service.calcularValores(identificadorSelecionado);
+            atualizar();
+        } catch (RegraNegocioException e) {
+            view.exibirMensagem(e.getMessage());
+        }
+    }
+
+    private void mostrarDetalhes() {
+        Pedido pedido = pedidoSelecionado();
+
+        if (pedido == null || pedido.getDescontosTaxa().isEmpty()) {
+            view.exibirMensagem("Não há descontos da taxa de entrega.");
+            return;
+        }
+
+        String texto = "Descontos da taxa de entrega:\n";
+
+        for (DescontoTaxaEntrega desconto : pedido.getDescontosTaxa()) {
+            texto = texto + desconto.getDescricao() + ": "
+                    + Formatos.numero(desconto.getValor()) + "\n";
+        }
+
+        view.exibirMensagem(texto);
+    }
+
+    private void pagar() {
+        if (identificadorSelecionado == null) {
+            view.exibirMensagem("Crie ou selecione um pedido.");
+            return;
+        }
+
+        try {
+            service.prepararPagamento(identificadorSelecionado);
+            navegacao.pagamento(identificadorSelecionado, usuario);
         } catch (RegraNegocioException e) {
             view.exibirMensagem(e.getMessage());
         }
@@ -305,6 +423,25 @@ public class PedidosPresenter {
         view.mostrarItens(linhas);
         view.selecionarLinhaItem(itens.isEmpty() ? -1 : 0);
         selecionarItem();
+    }
+
+    private void mostrarResumo(Pedido pedido) {
+        if (!pedido.isValoresCalculados()) {
+            view.mostrarResumo("", "", "", "", "",
+                    pedido.temCupom() ? pedido.getCodigoCupom() : "");
+            view.definirDetalhesHabilitado(false);
+            return;
+        }
+
+        view.mostrarResumo(
+                Formatos.numero(pedido.getTaxaEntrega()),
+                Formatos.numero(pedido.getDescontoTaxaTotal()),
+                Formatos.numero(pedido.getTaxaEntregaFinal()),
+                Formatos.numero(pedido.getValorDescontoCupom()),
+                Formatos.numero(pedido.getTotalPagar()),
+                pedido.temCupom() ? pedido.getCodigoCupom() : ""
+        );
+        view.definirDetalhesHabilitado(!pedido.getDescontosTaxa().isEmpty());
     }
 
     private int localizarSelecionado() {

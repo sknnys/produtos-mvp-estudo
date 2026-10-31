@@ -15,9 +15,18 @@ import java.util.List;
 
 public class PedidoServico {
     private IPedidoRepository pedidoRepository;
+    private CupomServico cupomServico;
+    private CalculadoraDescontoTaxaEntregaServico calculadoraDescontoTaxa;
+    private PagamentoServico pagamentoServico;
+    private IPedidoNovoListener pedidoNovoListener;
 
-    public PedidoServico(IPedidoRepository pedidoRepository) {
+    public PedidoServico(IPedidoRepository pedidoRepository, CupomServico cupomServico,
+            CalculadoraDescontoTaxaEntregaServico calculadoraDescontoTaxa,
+            PagamentoServico pagamentoServico) {
         this.pedidoRepository = pedidoRepository;
+        this.cupomServico = cupomServico;
+        this.calculadoraDescontoTaxa = calculadoraDescontoTaxa;
+        this.pagamentoServico = pagamentoServico;
     }
 
     public Pedido consultar(String identificador) {
@@ -58,7 +67,14 @@ public class PedidoServico {
                 enderecoPedido.trim()
         );
         pedidoRepository.salvar(pedido);
+        if (pedidoNovoListener != null) {
+            pedidoNovoListener.pedidoCriado(pedido);
+        }
         return pedido;
+    }
+
+    public void definirPedidoNovoListener(IPedidoNovoListener pedidoNovoListener) {
+        this.pedidoNovoListener = pedidoNovoListener;
     }
 
     public void atualizarEndereco(String identificador, String endereco) {
@@ -92,6 +108,55 @@ public class PedidoServico {
 
         Pedido pedido = consultar(identificador);
         pedido.alterarQuantidadeItem(produtoId, quantidade);
+        pedidoRepository.salvar(pedido);
+    }
+
+    public void aplicarCupom(String identificador, String codigo) {
+        Pedido pedido = consultar(identificador);
+        cupomServico.aplicar(pedido, codigo);
+        pedidoRepository.salvar(pedido);
+    }
+
+    public void removerCupom(String identificador) {
+        Pedido pedido = consultar(identificador);
+        pedido.removerCupom();
+        pedidoRepository.salvar(pedido);
+    }
+
+    public void calcularValores(String identificador) {
+        Pedido pedido = consultar(identificador);
+
+        if (pedido.getItens().isEmpty()) {
+            throw new RegraNegocioException("Inclua pelo menos um item no pedido.");
+        }
+
+        if (pedido.temCupom()) {
+            pedido.calcularComCupom();
+        } else {
+            calculadoraDescontoTaxa.calcular(pedido);
+            pedido.calcularSemCupom();
+        }
+
+        pedidoRepository.salvar(pedido);
+    }
+
+    public void registrarPagamento(String identificador, String formaPagamento) {
+        Pedido pedido = consultar(identificador);
+        pagamentoServico.finalizar(pedido, formaPagamento);
+        pedidoRepository.salvar(pedido);
+    }
+
+    public void prepararPagamento(String identificador) {
+        Pedido pedido = consultar(identificador);
+
+        if (!pedido.isValoresCalculados()) {
+            throw new RegraNegocioException("Calcule os valores antes de pagar o pedido.");
+        }
+
+        if (!pedido.estaNovo()) {
+            throw new RegraNegocioException("O pagamento só pode ser iniciado em pedido Novo.");
+        }
+
         pedidoRepository.salvar(pedido);
     }
 
